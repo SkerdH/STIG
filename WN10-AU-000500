@@ -1,0 +1,19 @@
+# Define the log name and required size in KB
+$LogName = "Application"
+$MaxLogSizeKB = 32768
+
+# Get the current log size setting
+$CurrentLogSize = (Get-EventLog -LogName $LogName -List).MaximumKilobytes
+
+# Check if the current log size is already compliant
+if ($CurrentLogSize -ge $MaxLogSizeKB) {
+    Write-Host "No changes needed. Current log size for $LogName is already $CurrentLogSize KB."
+} else {
+    # Set the maximum log file size
+    wevtutil sl $LogName /ms:$MaxLogSizeKB
+    Write-Host "Maximum log file size for $LogName set to $MaxLogSizeKB KB."
+}
+
+# Verify the change
+$UpdatedLogSize = (Get-EventLog -LogName $LogName -List).MaximumKilobytes
+Write-Host "Updated Log Size for $LogName: $UpdatedLogSize KB"
