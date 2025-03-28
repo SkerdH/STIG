@@ -1,0 +1,66 @@
+<#
+.SYNOPSIS
+    This PowerShell script configures the Security event log size to 1024000 KB (1 GB) or greater.
+
+.NOTES
+    Author          : Skerdilaid Hoti
+    GitHub          : github.com/SkerdH
+    Date Created    : 2025-03-28
+    Last Modified   : 2025-03-28
+    Version         : 1.0
+    CVEs            : N/A
+    Plugin IDs      : N/A
+    STIG-ID         : WN10-AU-000505
+
+.TESTED ON
+    Date(s) Tested  : 
+    Tested By       : 
+    Systems Tested  : 
+    PowerShell Ver. : 
+
+.USAGE
+    Run this script as Administrator.
+    Example:
+    PS C:\> .\Set-SecurityEventLogSize.ps1
+#>
+
+# Define the desired event log size in KB (1,024,000 KB = 1 GB)
+$logSize = 1024000  # 1 GB in KB
+
+# Set the registry key for the Security event log size
+Write-Host "Configuring Security event log size to $logSize KB..."
+$regPath = "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\Security"
+$regValueName = "MaxSize"
+$regValueData = $logSize
+
+# Check if the registry path exists, create if necessary
+if (!(Test-Path $regPath)) {
+    Write-Host "Creating registry path: $regPath"
+    New-Item -Path $regPath -Force | Out-Null
+}
+
+# Apply the registry setting
+Write-Host "Applying registry setting..."
+Set-ItemProperty -Path $regPath -Name $regValueName -Value $regValueData -Type DWord
+
+# Attempt to stop and start the Windows Event Log service
+try {
+    Write-Host "Attempting to stop the Windows Event Log service..."
+    Stop-Service -Name "EventLog" -Force -ErrorAction Stop
+
+    Write-Host "Restarting the Windows Event Log service..."
+    Start-Service -Name "EventLog"
+} catch {
+    Write-Host "Error: Failed to restart the EventLog service. You may need to restart the service manually."
+}
+
+# Verify the setting
+Write-Host "Verifying the event log size setting..."
+$verifySize = Get-ItemProperty -Path $regPath | Select-Object -ExpandProperty $regValueName
+if ($verifySize -eq $logSize) {
+    Write-Host "Security event log size successfully configured to $logSize KB."
+} else {
+    Write-Host "Error: Failed to configure Security event log size."
+}
+
+# End of script
