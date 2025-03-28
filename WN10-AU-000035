@@ -1,1 +1,37 @@
+<#
+.SYNOPSIS
+    This PowerShell script enables auditing for User Account Management failures.
 
+.NOTES
+    Author          : Skerdilaid Hoti
+    GitHub          : github.com/SkerdH
+    Date Created    : 2025-03-28
+    Last Modified   : 2025-03-28
+    Version         : 1.0
+    CVEs            : N/A
+    Plugin IDs      : N/A
+    STIG-ID         : WN10-AU-000035
+
+.TESTED ON
+    Date(s) Tested  : 
+    Tested By       : 
+    Systems Tested  : 
+    PowerShell Ver. : 
+
+.USAGE
+    Run this script as Administrator.
+    Example:
+    PS C:\> .\Enable-AccountManagementAudit.ps1
+#>
+
+# Enable auditing for User Account Management failures
+Write-Host "Enabling auditing for User Account Management failures..."
+
+# Run the auditpol command to enable failure auditing for User Account Management
+Start-Process -FilePath "auditpol" -ArgumentList '/set /subcategory:"User Account Management" /failure:enable' -NoNewWindow -Wait
+
+# Verify the setting
+Write-Host "Verifying the User Account Management auditing setting..."
+Start-Process -FilePath "auditpol" -ArgumentList '/get /subcategory:"User Account Management"' -NoNewWindow -Wait
+
+# End of script
