@@ -1,0 +1,51 @@
+<#
+.SYNOPSIS
+    This PowerShell script configures User Account Control (UAC) to prompt administrators for consent on the secure desktop.
+
+.NOTES
+    Author          : Skerdilaid Hoti
+    GitHub          : github.com/SkerdH
+    Date Created    : 2025-03-09
+    Last Modified   : 2025-03-28
+    Version         : 1.0
+    CVEs            : N/A
+    Plugin IDs      : N/A
+    STIG-ID         : WN10-SO-000250
+
+.TESTED ON
+    Date(s) Tested  : 
+    Tested By       : 
+    Systems Tested  : 
+    PowerShell Ver. : 
+
+.USAGE
+    Run this script as Administrator.
+    Example:
+    PS C:\> .\Enable-UAC-SecureDesktop.ps1
+#>
+
+# Define the registry path for UAC settings
+$regPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
+$regValueName = "ConsentPromptBehaviorAdmin"
+$regValueData = 5  # Prompt for consent on the secure desktop (UAC: Prompt for consent)
+
+# Check if the registry path exists, create if necessary
+if (!(Test-Path $regPath)) {
+    Write-Host "Creating registry path: $regPath"
+    New-Item -Path $regPath -Force | Out-Null
+}
+
+# Apply the registry setting to enable UAC prompt for consent on the secure desktop
+Write-Host "Configuring UAC to prompt administrators for consent on the secure desktop..."
+Set-ItemProperty -Path $regPath -Name $regValueName -Value $regValueData -Type DWord
+
+# Verify the configuration
+$verifySetting = Get-ItemProperty -Path $regPath | Select-Object -ExpandProperty $regValueName
+
+if ($verifySetting -eq $regValueData) {
+    Write-Host "User Account Control is successfully configured to prompt administrators for consent on the secure desktop."
+} else {
+    Write-Host "Error: Failed to configure User Account Control."
+}
+
+# End of script
