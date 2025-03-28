@@ -1,6 +1,30 @@
-WN10-SO-000030 - Audit policy using subcategories must be enabled.
+<#
+.SYNOPSIS
+    This PowerShell script ensures that audit policy subcategories are enabled for both Success and Failure.
 
-# Enable Audit Policy Subcategories (Success and Failure)
+.NOTES
+    Author          : Skerdilaid Hoti
+    GitHub          : github.com/SkerdH
+    Date Created    : 2025-03-09
+    Last Modified   : 2025-03-28
+    Version         : 1.0
+    CVEs            : N/A
+    Plugin IDs      : N/A
+    STIG-ID         : WN10-SO-000030
+
+.TESTED ON
+    Date(s) Tested  : 
+    Tested By       : 
+    Systems Tested  : 
+    PowerShell Ver. : 
+
+.USAGE
+    Run this script as Administrator to enable the audit policy subcategories for Success and Failure.
+    Example:
+    PS C:\> .\Enable-AuditPolicySubcategories.ps1
+#>
+
+# Enable Audit Policy Subcategories for Success and Failure
 Write-Host "Enabling Audit Policy Subcategories for Success and Failure..."
 
 # Retrieve all audit policy subcategories
@@ -17,3 +41,5 @@ Write-Host "Verifying configured audit policies..."
 auditpol /get /category:* | Format-Table -AutoSize
 
 Write-Host "Audit Policy Subcategories have been successfully enabled!"
+
+# End of script
