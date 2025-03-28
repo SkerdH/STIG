@@ -1,0 +1,44 @@
+<#
+.SYNOPSIS
+    This PowerShell script configures the period of time before the bad logon counter is reset to 15 minutes.
+
+.NOTES
+    Author          : Skerdilaid Hoti
+    GitHub          : github.com/SkerdH
+    Date Created    : 2025-03-28
+    Last Modified   : 2025-03-28
+    Version         : 1.0
+    CVEs            : N/A
+    Plugin IDs      : N/A
+    STIG-ID         : WN10-AC-000015
+
+.TESTED ON
+    Date(s) Tested  : 
+    Tested By       : 
+    Systems Tested  : 
+    PowerShell Ver. : 
+
+.USAGE
+    Run this script as Administrator.
+    Example:
+    PS C:\> .\Set-BadLogonCounterReset.ps1
+#>
+
+# Configure the period before the bad logon counter is reset to 15 minutes
+Write-Host "Configuring the bad logon counter reset period to 15 minutes..."
+
+# Use the net accounts command to set the "Reset Account Lockout Counter After" policy to 15 minutes (900 seconds)
+net accounts /lockoutduration:15
+
+# Verify the setting
+Write-Host "Verifying the reset period..."
+$lockoutDuration = net accounts | Select-String "Lockout duration"
+Write-Host $lockoutDuration
+
+if ($lockoutDuration -match "15") {
+    Write-Host "The bad logon counter reset period is successfully configured to 15 minutes."
+} else {
+    Write-Host "Error: Failed to configure the bad logon counter reset period."
+}
+
+# End of script
