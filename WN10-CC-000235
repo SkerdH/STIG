@@ -1,7 +1,36 @@
-# Define registry path and value for Edge SmartScreen setting
+<#
+.SYNOPSIS
+    This PowerShell script configures Windows Defender SmartScreen filter to prevent bypassing warnings for unverified files in Microsoft Edge.
+
+.NOTES
+    Author          : Skerdilaid Hoti
+    GitHub          : github.com/SkerdH
+    Date Created    : 2025-03-09
+    Last Modified   : 2025-03-28
+    Version         : 1.0
+    CVEs            : N/A
+    Plugin IDs      : N/A
+    STIG-ID         : WN10-CC-000235
+
+.TESTED ON
+    Date(s) Tested  : 
+    Tested By       : 
+    Systems Tested  : 
+    PowerShell Ver. : 
+
+.USAGE
+    Run this script as Administrator.
+    Example:
+    PS C:\> .\Configure-SmartScreen.ps1
+#>
+
+# Configure Windows Defender SmartScreen filter to prevent bypassing warnings
+Write-Host "Configuring Windows Defender SmartScreen filter to prevent bypassing warnings..."
+
+# Define registry path and values for Edge SmartScreen setting
 $regPath = "HKLM:\SOFTWARE\Policies\Microsoft\Edge"
 $regValueName = "SmartScreenEnabled"
-$regValueData = 1  # 1 to enable SmartScreen, 0 to disable
+$regValueData = 1  # 1 to enable SmartScreen and prevent bypassing warnings
 
 # Check if the registry path exists, create if necessary
 if (!(Test-Path $regPath)) {
@@ -9,14 +38,18 @@ if (!(Test-Path $regPath)) {
     New-Item -Path $regPath -Force | Out-Null
 }
 
-# Set the registry value to prevent bypassing SmartScreen
-Write-Host "Configuring Windows Defender SmartScreen filter to prevent bypassing..."
+# Apply the registry setting
+Write-Host "Applying registry setting..."
 Set-ItemProperty -Path $regPath -Name $regValueName -Value $regValueData -Type DWord
 
-# Verify the setting
-$verifyValue = (Get-ItemProperty -Path $regPath -Name $regValueName).$regValueName
-if ($verifyValue -eq $regValueData) {
+# Confirm the setting
+Write-Host "Verifying the registry setting..."
+$verifySetting = (Get-ItemProperty -Path $regPath -Name $regValueName).$regValueName
+
+if ($verifySetting -eq $regValueData) {
     Write-Host "Windows Defender SmartScreen filter warnings cannot be bypassed in Microsoft Edge."
 } else {
-    Write-Host "Error: Failed to configure SmartScreen setting."
+    Write-Host "Error: Failed to configure SmartScreen filter setting."
 }
+
+# End of script
