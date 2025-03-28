@@ -1,0 +1,29 @@
+WN10-CC-000326 - PowerShell script block logging must be enabled.
+
+# Enable PowerShell Script Block Logging
+Write-Host "Enabling PowerShell Script Block Logging..."
+
+# Define registry path and values
+$regPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging"
+$regValueName = "EnableScriptBlockLogging"
+$regValueData = 1
+
+# Check if the registry path exists, create if necessary
+if (!(Test-Path $regPath)) {
+    Write-Host "Creating registry path: $regPath"
+    New-Item -Path $regPath -Force
+}
+
+# Apply the registry setting
+Set-ItemProperty -Path $regPath -Name $regValueName -Value $regValueData -Type DWord
+Write-Host "PowerShell Script Block Logging is now enabled."
+
+# Restart Windows Event Log service to apply changes
+Write-Host "Restarting Windows Event Log service..."
+Restart-Service -Name "EventLog" -Force
+
+# Confirm the setting
+Write-Host "Verifying the registry setting..."
+Get-ItemProperty -Path $regPath | Select-Object $regValueName
+
+Write-Host "PowerShell Script Block Logging is successfully enabled!"
