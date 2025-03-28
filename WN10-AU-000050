@@ -1,0 +1,42 @@
+<#
+.SYNOPSIS
+    This script configures the system to audit Detailed Tracking - Process Creation successes.
+
+.NOTES
+    Author          : Skerdilaid Hoti
+    GitHub          : github.com/SkerdH
+    Date Created    : 2025-03-09
+    Last Modified   : 2025-03-28
+    Version         : 1.0
+    CVEs            : N/A
+    Plugin IDs      : N/A
+    STIG-ID         : WN10-AU-000050
+
+.TESTED ON
+    Date(s) Tested  : 
+    Tested By       : 
+    Systems Tested  : 
+    PowerShell Ver. : 
+
+.USAGE
+    Run this script as Administrator.
+    Example:
+    PS C:\> .\Enable-ProcessCreationAudit.ps1
+#>
+
+# Enable auditing for Process Creation successes
+Write-Host "Configuring system to audit Process Creation successes..." 
+
+# Set the audit policy for Process Creation
+auditpol /set /subcategory:"Process Creation" /success:enable
+
+# Verify the setting
+Write-Host "Verifying the Process Creation audit policy..."
+$auditPolicy = auditpol /get /subcategory:"Process Creation"
+if ($auditPolicy -contains "Success") {
+    Write-Host "Process Creation successes are now being audited."
+} else {
+    Write-Host "Error: Failed to configure Process Creation audit policy."
+}
+
+# End of script
