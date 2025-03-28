@@ -28,20 +28,26 @@
 $LogName = "Application"
 $MaxLogSizeKB = 32768
 
+# Convert the required log size from KB to bytes (since wevtutil requires the size in bytes)
+$MaxLogSizeBytes = $MaxLogSizeKB * 1KB
+
 # Get the current log size setting
-$CurrentLogSize = (Get-WinEvent -ListLog $LogName).MaximumSizeInBytes / 1KB
+$CurrentLogSizeBytes = (Get-WinEvent -ListLog $LogName).MaximumSizeInBytes
+$CurrentLogSizeKB = $CurrentLogSizeBytes / 1KB
 
 # Check if the current log size is already compliant
-if ($CurrentLogSize -ge $MaxLogSizeKB) {
-    Write-Host "No changes needed. Current log size for $LogName is already $CurrentLogSize KB."
+if ($CurrentLogSizeKB -ge $MaxLogSizeKB) {
+    Write-Host "No changes needed. Current log size for $LogName is already $CurrentLogSizeKB KB."
 } else {
-    # Set the maximum log file size
-    wevtutil sl $LogName /ms:$MaxLogSizeKB
+    # Set the maximum log file size in bytes
+    wevtutil sl $LogName /ms:$MaxLogSizeBytes
     Write-Host "Maximum log file size for $LogName set to $MaxLogSizeKB KB."
 }
 
 # Verify the change
-$UpdatedLogSize = (Get-WinEvent -ListLog $LogName).MaximumSizeInBytes / 1KB
-Write-Host "Updated Log Size for ${LogName}: $UpdatedLogSize KB"
+$UpdatedLogSizeBytes = (Get-WinEvent -ListLog $LogName).MaximumSizeInBytes
+$UpdatedLogSizeKB = $UpdatedLogSizeBytes / 1KB
+Write-Host "Updated Log Size for ${LogName}: $UpdatedLogSizeKB KB"
+
 
 # End of script
