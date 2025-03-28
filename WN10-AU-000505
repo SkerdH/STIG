@@ -56,11 +56,12 @@ try {
 
 # Verify the setting
 Write-Host "Verifying the event log size setting..."
-$verifySize = Get-ItemProperty -Path $regPath | Select-Object -ExpandProperty $regValueName
+$verifySize = (Get-ItemProperty -Path $regPath -Name $regValueName).$regValueName
 if ($verifySize -eq $logSize) {
     Write-Host "Security event log size successfully configured to $logSize KB."
 } else {
     Write-Host "Error: Failed to configure Security event log size."
 }
+
 
 # End of script
