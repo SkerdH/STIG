@@ -1,0 +1,23 @@
+WN10-SO-000030 - Audit policy using subcategories must be enabled.
+
+# 1. Enable Audit Policy Subcategories
+Write-Host "Enabling Audit Policy Subcategories..."
+auditpol /set /category:* /success:enable /failure:enable
+
+# 2. Enforce BitLocker PIN for Pre-Boot Authentication
+Write-Host "Enforcing BitLocker PIN for Pre-Boot Authentication..."
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\FVE" /v UseTPMPIN /t REG_DWORD /d 1 /f
+
+# 3. Enable PowerShell Script Block Logging
+Write-Host "Enabling PowerShell Script Block Logging..."
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging" /v EnableScriptBlockLogging /t REG_DWORD /d 1 /f
+
+# 4. Disable Convenience PIN Login
+Write-Host "Disabling Convenience PIN Login..."
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System" /v AllowDomainPINLogon /t REG_DWORD /d 0 /f
+
+# 5. Restrict Unauthenticated RPC Clients
+Write-Host "Restricting Unauthenticated RPC Clients..."
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Rpc" /v RestrictRemoteClients /t REG_DWORD /d 1 /f
+
+Write-Host "All configurations applied successfully! Restarting the system is recommended."
