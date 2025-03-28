@@ -1,4 +1,28 @@
-WN10-CC-000326 - PowerShell script block logging must be enabled.
+<#
+.SYNOPSIS
+    This PowerShell script enables PowerShell Script Block Logging for security auditing.
+
+.NOTES
+    Author          : Skerdilaid Hoti
+    GitHub          : github.com/SkerdH
+    Date Created    : 2025-03-09
+    Last Modified   : 2025-03-28
+    Version         : 1.0
+    CVEs            : N/A
+    Plugin IDs      : N/A
+    STIG-ID         : WN10-CC-000326
+
+.TESTED ON
+    Date(s) Tested  : 
+    Tested By       : 
+    Systems Tested  : 
+    PowerShell Ver. : 
+
+.USAGE
+    Run this script as Administrator.
+    Example:
+    PS C:\> .\Enable-ScriptBlockLogging.ps1
+#>
 
 # Enable PowerShell Script Block Logging
 Write-Host "Enabling PowerShell Script Block Logging..."
@@ -11,12 +35,12 @@ $regValueData = 1
 # Check if the registry path exists, create if necessary
 if (!(Test-Path $regPath)) {
     Write-Host "Creating registry path: $regPath"
-    New-Item -Path $regPath -Force
+    New-Item -Path $regPath -Force | Out-Null
 }
 
 # Apply the registry setting
+Write-Host "Applying registry setting..."
 Set-ItemProperty -Path $regPath -Name $regValueName -Value $regValueData -Type DWord
-Write-Host "PowerShell Script Block Logging is now enabled."
 
 # Restart Windows Event Log service to apply changes
 Write-Host "Restarting Windows Event Log service..."
@@ -24,6 +48,12 @@ Restart-Service -Name "EventLog" -Force
 
 # Confirm the setting
 Write-Host "Verifying the registry setting..."
-Get-ItemProperty -Path $regPath | Select-Object $regValueName
+$verifySetting = Get-ItemProperty -Path $regPath | Select-Object -ExpandProperty $regValueName
 
-Write-Host "PowerShell Script Block Logging is successfully enabled!"
+if ($verifySetting -eq $regValueData) {
+    Write-Host "PowerShell Script Block Logging is successfully enabled!"
+} else {
+    Write-Host "Error: Failed to enable PowerShell Script Block Logging."
+}
+
+# End of script
