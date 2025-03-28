@@ -1,23 +1,19 @@
 WN10-SO-000030 - Audit policy using subcategories must be enabled.
 
-# 1. Enable Audit Policy Subcategories
-Write-Host "Enabling Audit Policy Subcategories..."
-auditpol /set /category:* /success:enable /failure:enable
+# Enable Audit Policy Subcategories (Success and Failure)
+Write-Host "Enabling Audit Policy Subcategories for Success and Failure..."
 
-# 2. Enforce BitLocker PIN for Pre-Boot Authentication
-Write-Host "Enforcing BitLocker PIN for Pre-Boot Authentication..."
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\FVE" /v UseTPMPIN /t REG_DWORD /d 1 /f
+# Retrieve all audit policy subcategories
+$categories = auditpol /get /category:* | Select-String "Category Name" | ForEach-Object { ($_ -split ':')[-1].Trim() }
 
-# 3. Enable PowerShell Script Block Logging
-Write-Host "Enabling PowerShell Script Block Logging..."
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging" /v EnableScriptBlockLogging /t REG_DWORD /d 1 /f
+# Apply audit policy settings to each category
+foreach ($category in $categories) {
+    Write-Host "Configuring audit policy for: $category"
+    auditpol /set /category:"$category" /success:enable /failure:enable
+}
 
-# 4. Disable Convenience PIN Login
-Write-Host "Disabling Convenience PIN Login..."
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System" /v AllowDomainPINLogon /t REG_DWORD /d 0 /f
+# Verify the changes
+Write-Host "Verifying configured audit policies..."
+auditpol /get /category:* | Format-Table -AutoSize
 
-# 5. Restrict Unauthenticated RPC Clients
-Write-Host "Restricting Unauthenticated RPC Clients..."
-reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Rpc" /v RestrictRemoteClients /t REG_DWORD /d 1 /f
-
-Write-Host "All configurations applied successfully! Restarting the system is recommended."
+Write-Host "Audit Policy Subcategories have been successfully enabled!"
