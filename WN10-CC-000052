@@ -1,0 +1,68 @@
+<#
+.SYNOPSIS
+    This PowerShell script configures Windows 10 to prioritize ECC curves with longer key lengths first.
+
+.NOTES
+    Author          : Skerdilaid Hoti
+    GitHub          : github.com/SkerdH
+    Date Created    : 2025-03-09
+    Last Modified   : 2025-03-28
+    Version         : 1.0
+    CVEs            : N/A
+    Plugin IDs      : N/A
+    STIG-ID         : WN10-CC-000052
+
+.TESTED ON
+    Date(s) Tested  : 
+    Tested By       : 
+    Systems Tested  : 
+    PowerShell Ver. : 
+
+.USAGE
+    Run this script as Administrator.
+    Example:
+    PS C:\> .\Configure-ECC-Curves.ps1
+#>
+
+# Define the registry path for cryptographic settings
+$regPath = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Hashes"
+
+# Define the registry keys for ECC curves
+$eccCurves = @(
+    "secp384r1",  # P-384 curve
+    "secp521r1"   # P-521 curve
+)
+
+# Set the priority of ECC curves
+Write-Host "Configuring Windows to prioritize ECC curves with longer key lengths..."
+
+# Check if the registry path exists, create if necessary
+if (!(Test-Path $regPath)) {
+    Write-Host "Creating registry path: $regPath"
+    New-Item -Path $regPath -Force | Out-Null
+}
+
+# Loop through ECC curves and set their priority
+foreach ($curve in $eccCurves) {
+    $key = "$regPath\$curve"
+    if (!(Test-Path $key)) {
+        Write-Host "Creating registry key for $curve..."
+        New-Item -Path $key -Force | Out-Null
+    }
+
+    Write-Host "Enabling ECC curve $curve..."
+    Set-ItemProperty -Path $key -Name "Enabled" -Value 1 -Type DWord
+}
+
+# Verify the configuration
+Write-Host "Verifying ECC curve prioritization..."
+$verifiedCurves = Get-ItemProperty -Path $regPath | Select-Object -ExpandProperty PSChildName
+$eccConfigured = $verifiedCurves -in $eccCurves
+
+if ($eccConfigured.Count -eq $eccCurves.Count) {
+    Write-Host "ECC curves with longer key lengths (P-384, P-521) are successfully prioritized."
+} else {
+    Write-Host "Error: Failed to configure ECC curves with longer key lengths."
+}
+
+# End of script
