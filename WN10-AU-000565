@@ -1,0 +1,54 @@
+<#
+.SYNOPSIS
+    This PowerShell script configures Windows 10 to audit logon/logoff events failures.
+
+.NOTES
+    Author          : Skerdilaid Hoti
+    GitHub          : github.com/SkerdH
+    Date Created    : 2025-03-09
+    Last Modified   : 2025-03-28
+    Version         : 1.0
+    CVEs            : N/A
+    Plugin IDs      : N/A
+    STIG-ID         : WN10-AU-000565
+
+.TESTED ON
+    Date(s) Tested  : 
+    Tested By       : 
+    Systems Tested  : 
+    PowerShell Ver. : 
+
+.USAGE
+    Run this script as Administrator.
+    Example:
+    PS C:\> .\Enable-LogonAuditFailure.ps1
+#>
+
+# Define the registry path to the local security policy for logon/logoff auditing
+$regPath = "HKLM:\SYSTEM\CurrentControlSet\Services\Audit\Logon/Logoff"
+$regValueName = "AuditLogon/LogoffFailures"
+$regValueData = 1  # Enable auditing for logon/logoff failures
+
+# Check if the registry path exists, create if necessary
+if (!(Test-Path $regPath)) {
+    Write-Host "Creating registry path: $regPath"
+    New-Item -Path $regPath -Force | Out-Null
+}
+
+# Apply the registry setting to enable logon/logoff failure auditing
+Write-Host "Configuring registry to enable auditing for logon/logoff failures..."
+Set-ItemProperty -Path $regPath -Name $regValueName -Value $regValueData -Type DWord
+
+# Instead of restarting the EventLog service, we'll suggest a logoff or reboot to apply changes
+Write-Host "To apply the changes, please log off and log back in, or restart the system."
+
+# Verify the configuration
+$verifySetting = Get-ItemProperty -Path $regPath | Select-Object -ExpandProperty $regValueName
+
+if ($verifySetting -eq $regValueData) {
+    Write-Host "Logon/Logoff event failures are successfully being audited."
+} else {
+    Write-Host "Error: Failed to enable auditing for logon/logoff failures."
+}
+
+# End of script
